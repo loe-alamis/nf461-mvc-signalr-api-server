@@ -1,0 +1,43 @@
+﻿
+@{
+    ViewBag.Title = "Chat";
+}
+
+<h2>ASP Net 461 SignalR Server Test</h2>
+
+<div class="container">
+    <input type="text" id="message" />
+    <input type="button" id="sendmessage" value="Send" />
+    <input type="hidden" id="displayname" />
+    <ul id="discussion"></ul>
+    <div id="ref">
+    </div>
+</div>
+@section scripts {
+    <script src="~/Scripts/jquery.signalR-2.2.2.min.js"></script>
+    <script src="~/signalr/hubs"></script>
+    <script>
+        $(function () {
+            var chat = $.connection.myHub;
+            chat.client.addNewMessageToPage = function (name, message) {
+                $('#discussion').append('<li><strong>' + name + ': '
+                    + '</strong>' + message
+                    + '</li>');
+            };
+
+            $('#displayname').val(prompt('Enter name: ', ''));
+            $('#message').focus();
+
+            chat.client.checkStatus = function (id, status) {
+                $('#ref').append('<h4>ID = ' + id + '</h4>' + '<span>' + status + '</span>');
+            }
+
+            $.connection.hub.start().done(function () {
+                $('#sendmessage').click(function () {
+                    chat.server.send($('#displayname').val(), $('#message').val());
+                    $('#message').val('').focus();
+                });
+            });
+        });
+    </script>
+}
